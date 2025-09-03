@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Malla Curricular</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
+    <style>
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <!-- Header -->
+    <div class="bg-white shadow-lg border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-3 rounded-lg">
+                        <i data-lucide="graduation-cap" class="h-8 w-8 text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900">Mi Malla Curricular</h1>
+                        <p class="text-gray-600">Seguimiento de progreso académico</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Stats Dashboard -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Materias Completadas</p>
+                        <p class="text-2xl font-bold text-green-600" id="completed-subjects">0/0</p>
+                    </div>
+                    <div class="bg-green-100 p-3 rounded-lg">
+                        <i data-lucide="check-circle" class="h-6 w-6 text-green-600"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div id="completion-bar" class="bg-green-500 h-2 rounded-full progress-bar" style="width: 0%"></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1" id="completion-percentage">0% del total</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Créditos Obtenidos</p>
+                        <p class="text-2xl font-bold text-blue-600" id="completed-credits">0/0</p>
+                    </div>
+                    <div class="bg-blue-100 p-3 rounded-lg">
+                        <i data-lucide="award" class="h-6 w-6 text-blue-600"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div id="credit-bar" class="bg-blue-500 h-2 rounded-full progress-bar" style="width: 0%"></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1" id="credit-percentage">0% de créditos</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Materias Pendientes</p>
+                        <p class="text-2xl font-bold text-orange-600" id="pending-subjects">0</p>
+                    </div>
+                    <div class="bg-orange-100 p-3 rounded-lg">
+                        <i data-lucide="clock" class="h-6 w-6 text-orange-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Semestres</p>
+                        <p class="text-2xl font-bold text-purple-600" id="total-semesters">8</p>
+                    </div>
+                    <div class="bg-purple-100 p-3 rounded-lg">
+                        <i data-lucide="book-open" class="h-6 w-6 text-purple-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Curriculum Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8" id="curriculum-grid">
+            <!-- Semesters will be dynamically generated here -->
+        </div>
+
+        <!-- Instructions -->
+        <div class="mt-12 bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+            <div class="flex items-start space-x-3">
+                <div class="bg-blue-100 p-2 rounded-lg">
+                    <i data-lucide="book-open" class="h-5 w-5 text-blue-600"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Cómo usar</h3>
+                    <ul class="text-gray-600 space-y-1">
+                        <li>• Haz clic en cualquier materia para marcarla como completada o pendiente</li>
+                        <li>• El progreso se actualiza automáticamente en las estadísticas</li>
+                        <li>• Las barras de progreso muestran tu avance por semestre</li>
+                        <li>• Puedes personalizar las materias editando el código</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data con los valores correctos
+        const subjects = [
+            // Primer Semestre
+            { id: 1, name: "Contabilidad I", semester: 1, credits: 3, completed: true },
+            { id: 2, name: "Matemáticas", semester: 1, credits: 3, completed: true },
+            { id: 3, name: "Ecología y ambiente", semester: 1, credits: 3, completed: true },
+            { id: 4, name: "Teoría y práctica administrativa", semester: 1, credits: 3, completed: true },
+            { id: 5, name: "Desarrollo del pensamiento", semester: 1, credits: 3, completed: true },
+            
+            // Segundo Semestre
+            { id: 6, name: "Contabilidad II", semester: 2, credits: 3, completed: true },
+            { id: 7, name: "Microeconomía", semester: 2, credits: 3, completed: true },
+            { id: 8, name: "Estadística I", semester: 2, credits: 3, completed: true },
+            { id: 9, name: "Legislación Laboral", semester: 2, credits: 3, completed: true },
+            { id: 10, name: "Metodología de Investigación", semester: 2, credits: 3, completed: true },
+            
+            // Tercer Semestre
+            { id: 11, name: "Contabilidad de costos", semester: 3, credits: 3, completed: false },
+            { id: 12, name: "Macroeconomía", semester: 3, credits: 3, completed: false },
+            { id: 13, name: "Estadística II", semester: 3, credits: 3, completed: false },
+            { id: 14, name: "Administración Aplicada", semester: 3, credits: 3, completed: false },
+            { id: 15, name: "Formación ciudadana", semester: 3, credits: 3, completed: false },
+            
+            // Cuarto Semestre
+            { id: 16, name: "Legislación Tributaria", semester: 4, credits: 3, completed: false },
+            { id: 17, name: "Emprendimiento I", semester: 4, credits: 3, completed: false },
+            { id: 18, name: "Investigación de mercados", semester: 4, credits: 3, completed: false },
+            { id: 19, name: "Comportamiento organizacional", semester: 4, credits: 2, completed: false },
+            { id: 20, name: "Liderazgo empresarial", semester: 4, credits: 2, completed: false },
+            { id: 21, name: "Legislación societaria y mercantil", semester: 4, credits: 2, completed: false },
+
+            // Quinto Semestre
+            { id: 22, name: "Finanzas", semester: 5, credits: 3, completed: false },
+            { id: 23, name: "Formulación de proyectos", semester: 5, credits: 3, completed: false },
+            { id: 24, name: "Marketing", semester: 5, credits: 2, completed: false },
+            { id: 25, name: "Emprendimiento II", semester: 5, credits: 2, completed: false },
+            { id: 26, name: "Diseño organizacional", semester: 5, credits: 2, completed: false },
+            { id: 27, name: "Logística y distribución", semester: 5, credits: 3, completed: false },
+
+            // Sexto Semestre
+            { id: 28, name: "Auditoria y gestión", semester: 6, credits: 3, completed: false },
+            { id: 29, name: "Administración estratégica", semester: 6, credits: 3, completed: false },
+            { id: 30, name: "Responsabilidad social y ética", semester: 6, credits: 3, completed: false },
+            { id: 31, name: "Evaluación de proyectos", semester: 6, credits: 3, completed: false },
+            { id: 32, name: "Gestión del talento Humano", semester: 6, credits: 3, completed: false },
+
+            // Séptimo Semestre
+            { id: 33, name: "Modelos de gestión empresarial", semester: 7, credits: 3, completed: false },
+            { id: 34, name: "Sistemas integrados de gestión de calidad", semester: 7, credits: 3, completed: false },
+            { id: 35, name: "Trabajo de integración curricular I", semester: 7, credits: 3, completed: false },
+            { id: 36, name: "Gestión estratégica empresarial", semester: 7, credits: 3, completed: false },
+            { id: 37, name: "Sistemas de información gerencial", semester: 7, credits: 3, completed: false },
+
+            // Octavo Semestre
+            { id: 38, name: "Comercio exterior", semester: 8, credits: 5, completed: false },
+            { id: 39, name: "Trabajo de integración curricular II", semester: 8, credits: 5, completed: false },
+            { id: 40, name: "Gestión estratégica de PYMES", semester: 8, credits: 5, completed: false },
+        ];
+
+        // Funciones principales
+        function calculateStats() {
+            const totalSubjects = subjects.length;
+            const completedSubjects = subjects.filter(s => s.completed).length;
+            const pendingSubjects = totalSubjects - completedSubjects;
+            
+            const totalCredits = subjects.reduce((sum, s) => sum + s.credits, 0);
+            const completedCredits = subjects.filter(s => s.completed).reduce((sum, s) => sum + s.credits, 0);
+            
+            const subjectPercentage = totalSubjects > 0 ? Math.round((completedSubjects / totalSubjects) * 100) : 0;
+            const creditPercentage = totalCredits > 0 ? Math.round((completedCredits / totalCredits) * 100) : 0;
+
+            return {
+                totalSubjects,
+                completedSubjects,
+                pendingSubjects,
+                totalCredits,
+                completedCredits,
+                subjectPercentage,
+                creditPercentage
+            };
+        }
+
+        function updateStatistics() {
+            const stats = calculateStats();
+            
+            // Actualizar textos
+            document.getElementById('completed-subjects').textContent = stats.completedSubjects + '/' + stats.totalSubjects;
+            document.getElementById('completed-credits').textContent = stats.completedCredits + '/' + stats.totalCredits;
+            document.getElementById('pending-subjects').textContent = stats.pendingSubjects;
+            document.getElementById('completion-percentage').textContent = stats.subjectPercentage + '% del total';
+            document.getElementById('credit-percentage').textContent = stats.creditPercentage + '% de créditos';
+            
+            // Actualizar barras de progreso
+            document.getElementById('completion-bar').style.width = stats.subjectPercentage + '%';
+            document.getElementById('credit-bar').style.width = stats.creditPercentage + '%';
+        }
+
+        function toggleSubject(id) {
+            const subject = subjects.find(s => s.id === id);
+            if (subject) {
+                subject.completed = !subject.completed;
+                updateStatistics();
+                renderSemesters();
+            }
+        }
+
+        function renderSemesters() {
+            const grid = document.getElementById('curriculum-grid');
+            grid.innerHTML = '';
+
+            for (let semester = 1; semester <= 8; semester++) {
+                const semesterSubjects = subjects.filter(s => s.semester === semester);
+                const completedInSemester = semesterSubjects.filter(s => s.completed).length;
+                const totalInSemester = semesterSubjects.length;
+                const semesterProgress = totalInSemester > 0 ? Math.round((completedInSemester / totalInSemester) * 100) : 0;
+
+                const semesterDiv = document.createElement('div');
+                semesterDiv.className = 'bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden';
+                
+                let subjectsHTML = '';
+                semesterSubjects.forEach(subject => {
+                    subjectsHTML += `
+                        <div class="flex items-center justify-between p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer hover:shadow-md ${
+                            subject.completed 
+                                ? 'bg-green-50 border-green-200 hover:bg-green-100' 
+                                : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                        }" onclick="toggleSubject(${subject.id})">
+                            <div class="flex items-center space-x-3">
+                                <i data-lucide="${subject.completed ? 'check-circle' : 'circle'}" 
+                                   class="h-6 w-6 ${subject.completed ? 'text-green-600' : 'text-gray-400'} flex-shrink-0"></i>
+                                <div>
+                                    <h4 class="font-medium ${subject.completed ? 'text-green-800' : 'text-gray-700'}">
+                                        ${subject.name}
+                                    </h4>
+                                    <p class="text-sm text-gray-500">${subject.credits} créditos</p>
+                                </div>
+                            </div>
+                            <div class="px-3 py-1 rounded-full text-xs font-medium ${
+                                subject.completed 
+                                    ? 'bg-green-200 text-green-800' 
+                                    : 'bg-gray-200 text-gray-600'
+                            }">
+                                ${subject.completed ? 'Completada' : 'Pendiente'}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                semesterDiv.innerHTML = `
+                    <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-bold text-white">Semestre ${semester}</h3>
+                            <span class="bg-white/20 px-3 py-1 rounded-full text-sm text-white font-medium">
+                                ${completedInSemester}/${totalInSemester}
+                            </span>
+                        </div>
+                        <div class="mt-3">
+                            <div class="w-full bg-white/20 rounded-full h-2">
+                                <div class="bg-white h-2 rounded-full progress-bar" style="width: ${semesterProgress}%"></div>
+                            </div>
+                            <p class="text-xs text-white/80 mt-1">${semesterProgress}% completado</p>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6 space-y-3">
+                        ${subjectsHTML}
+                    </div>
+                `;
+                
+                grid.appendChild(semesterDiv);
+            }
+
+            // Reinicializar iconos de Lucide
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // Inicialización cuando la página esté lista
+        window.addEventListener('load', function() {
+            console.log('Página cargada completamente');
+            updateStatistics();
+            renderSemesters();
+            
+            // Inicializar iconos de Lucide
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+
+        // Backup de inicialización
+        setTimeout(function() {
+            updateStatistics();
+            renderSemesters();
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
