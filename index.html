@@ -99,21 +99,38 @@
             <!-- Semesters will be dynamically generated here -->
         </div>
 
-        <!-- Instructions -->
-        <div class="mt-12 bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-            <div class="flex items-start space-x-3">
-                <div class="bg-blue-100 p-2 rounded-lg">
-                    <i data-lucide="book-open" class="h-5 w-5 text-blue-600"></i>
+        <!-- Requisitos Adicionales -->
+        <div class="mt-8 mb-8">
+            <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-bold text-white">Requisitos Adicionales</h3>
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-sm text-white font-medium" id="requirements-progress">
+                            0/0
+                        </span>
+                    </div>
+                    <div class="mt-3">
+                        <div class="w-full bg-white/20 rounded-full h-2">
+                            <div id="requirements-bar" class="bg-white h-2 rounded-full progress-bar" style="width: 0%"></div>
+                        </div>
+                        <p class="text-xs text-white/80 mt-1" id="requirements-percentage">0% completado</p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Cómo usar</h3>
-                    <ul class="text-gray-600 space-y-1">
-                        <li>• Haz clic en cualquier materia para marcarla como completada o pendiente</li>
-                        <li>• El progreso se actualiza automáticamente en las estadísticas</li>
-                        <li>• Las barras de progreso muestran tu avance por semestre</li>
-                        <li>• Puedes personalizar las materias editando el código</li>
-                    </ul>
+                
+                <div class="p-6 space-y-3" id="requirements-container">
+                    <!-- Requirements will be dynamically generated here -->
                 </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer con nombre del estudiante -->
+    <div class="bg-white border-t border-gray-200 mt-12">
+        <div class="max-w-7xl mx-auto px-4 py-6">
+            <div class="text-center">
+                <p class="text-lg font-semibold text-gray-800">Thaiz Avila - Administración de Empresas</p>
+                <p class="text-sm text-gray-500 mt-1">Seguimiento Académico Personal</p>
             </div>
         </div>
     </div>
@@ -176,14 +193,22 @@
             { id: 38, name: "Comercio exterior", semester: 8, credits: 5, completed: false },
             { id: 39, name: "Trabajo de integración curricular II", semester: 8, credits: 5, completed: false },
             { id: 40, name: "Gestión estratégica de PYMES", semester: 8, credits: 5, completed: false },
+            
+            // Requisitos (sin semestre para separarlos) - Solo créditos
+            { id: 41, name: "B1 Inglés", credits: 8, completed: false, isRequirement: true },
+            { id: 42, name: "Prácticas PreProfesionales", credits: 5, completed: false, isRequirement: true },
+            { id: 43, name: "Vinculación con la sociedad", credits: 2, completed: false, isRequirement: true },
         ];
 
-        // Funciones principales
+        // Funciones principales - MODIFICADO para excluir requisitos del conteo de materias
         function calculateStats() {
-            const totalSubjects = subjects.length;
-            const completedSubjects = subjects.filter(s => s.completed).length;
+            // Solo materias regulares (sin requisitos) para el conteo de materias
+            const regularSubjects = subjects.filter(s => !s.isRequirement);
+            const totalSubjects = regularSubjects.length;
+            const completedSubjects = regularSubjects.filter(s => s.completed).length;
             const pendingSubjects = totalSubjects - completedSubjects;
             
+            // Para créditos, incluimos TODOS (materias + requisitos)
             const totalCredits = subjects.reduce((sum, s) => sum + s.credits, 0);
             const completedCredits = subjects.filter(s => s.completed).reduce((sum, s) => sum + s.credits, 0);
             
@@ -201,19 +226,38 @@
             };
         }
 
+        function calculateRequirementsStats() {
+            const requirements = subjects.filter(s => s.isRequirement);
+            const totalRequirements = requirements.length;
+            const completedRequirements = requirements.filter(r => r.completed).length;
+            const requirementPercentage = totalRequirements > 0 ? Math.round((completedRequirements / totalRequirements) * 100) : 0;
+
+            return {
+                totalRequirements,
+                completedRequirements,
+                requirementPercentage
+            };
+        }
+
         function updateStatistics() {
             const stats = calculateStats();
+            const reqStats = calculateRequirementsStats();
             
-            // Actualizar textos
+            // Actualizar textos principales
             document.getElementById('completed-subjects').textContent = stats.completedSubjects + '/' + stats.totalSubjects;
             document.getElementById('completed-credits').textContent = stats.completedCredits + '/' + stats.totalCredits;
             document.getElementById('pending-subjects').textContent = stats.pendingSubjects;
             document.getElementById('completion-percentage').textContent = stats.subjectPercentage + '% del total';
             document.getElementById('credit-percentage').textContent = stats.creditPercentage + '% de créditos';
             
-            // Actualizar barras de progreso
+            // Actualizar barras de progreso principales
             document.getElementById('completion-bar').style.width = stats.subjectPercentage + '%';
             document.getElementById('credit-bar').style.width = stats.creditPercentage + '%';
+
+            // Actualizar estadísticas de requisitos
+            document.getElementById('requirements-progress').textContent = reqStats.completedRequirements + '/' + reqStats.totalRequirements;
+            document.getElementById('requirements-percentage').textContent = reqStats.requirementPercentage + '% completado';
+            document.getElementById('requirements-bar').style.width = reqStats.requirementPercentage + '%';
         }
 
         function toggleSubject(id) {
@@ -222,7 +266,44 @@
                 subject.completed = !subject.completed;
                 updateStatistics();
                 renderSemesters();
+                renderRequirements();
             }
+        }
+
+        function renderRequirements() {
+            const container = document.getElementById('requirements-container');
+            const requirements = subjects.filter(s => s.isRequirement);
+            
+            let requirementsHTML = '';
+            requirements.forEach(requirement => {
+                requirementsHTML += `
+                    <div class="flex items-center justify-between p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer hover:shadow-md ${
+                        requirement.completed 
+                            ? 'bg-green-50 border-green-200 hover:bg-green-100' 
+                            : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                    }" onclick="toggleSubject(${requirement.id})">
+                        <div class="flex items-center space-x-3">
+                            <i data-lucide="${requirement.completed ? 'check-circle' : 'circle'}" 
+                               class="h-6 w-6 ${requirement.completed ? 'text-green-600' : 'text-gray-400'} flex-shrink-0"></i>
+                            <div>
+                                <h4 class="font-medium ${requirement.completed ? 'text-green-800' : 'text-gray-700'}">
+                                    ${requirement.name}
+                                </h4>
+                                <p class="text-sm text-gray-500">${requirement.credits} créditos</p>
+                            </div>
+                        </div>
+                        <div class="px-3 py-1 rounded-full text-xs font-medium ${
+                            requirement.completed 
+                                ? 'bg-green-200 text-green-800' 
+                                : 'bg-gray-200 text-gray-600'
+                        }">
+                            ${requirement.completed ? 'Completado' : 'Pendiente'}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = requirementsHTML;
         }
 
         function renderSemesters() {
@@ -302,6 +383,7 @@
             console.log('Página cargada completamente');
             updateStatistics();
             renderSemesters();
+            renderRequirements();
             
             // Inicializar iconos de Lucide
             if (typeof lucide !== 'undefined') {
@@ -313,6 +395,7 @@
         setTimeout(function() {
             updateStatistics();
             renderSemesters();
+            renderRequirements();
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
             }
